@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { Search } from './Search';
 import pizzaLogo from '../assets/img/pizza-logo.svg';
 
-export default function Header() {
+export default function Header({ searchItem, setSearchItem }) {
   return (
     <div className="header">
       <div className="container">
@@ -17,7 +17,7 @@ export default function Header() {
             </div>
           </div>
         </Link>
-        <Search />
+        <Search searchItem={searchItem} setSearchItem={setSearchItem} />
         <div className="header__cart">
           <Link to="Cart" className="button button--cart">
             <span>520 ₽</span>
