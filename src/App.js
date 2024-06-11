@@ -1,7 +1,7 @@
 import './App.css';
 import React, {useState} from 'react';
 import {Routes, Route} from "react-router-dom";
-import { useContext, createContext } from 'react';
+import { createContext } from 'react';
 import "./scss/app.scss";
 
 import Header from './components/Header'

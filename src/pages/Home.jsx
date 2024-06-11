@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { useContext } from 'react';
+import React, { useState, useContext, useEffect, useDeferredValue } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { setFilterIndex, setSort, setCurrentPage } from '../redux/slices/sortSlice';
+import axios from 'axios';
 
 import '../scss/app.scss';
 
@@ -11,31 +13,34 @@ import Pagination from '../components/Pagination/index';
 import { searchContext } from '../App';
 
 export default function Home() {
+  const { filterIndex, sort, currentPage } = useSelector((state) => state.filter);
+  const dispatch = useDispatch();
   const { searchItem } = useContext(searchContext);
   const [items, setItems] = useState([]);
   const [showSkeleton, setShowSkeleton] = useState(true);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [changeSort, setChangeSort] = useState({
-    name: 'популярности',
-    desc: 'rating',
-  });
-  const category = activeIndex > 0 ? `category=${activeIndex}` : '';
-  const sort = changeSort.desc.replace('-', '');
-  const order = changeSort.desc.includes('-') ? 'asc' : 'desc';
-  const [onPagination, setOnPagination] = useState(1);
+  const onClickCategory = (i) => {
+    dispatch(setFilterIndex(i));
+  };
 
   useEffect(() => {
     setShowSkeleton(true);
-    fetch(
-      `https://6650e2e120f4f4c442766bbe.mockapi.io/items/pizzas?page=${onPagination}&limit=4&${category}&sortBy=${sort}&order=${order}`,
-    )
-      .then((res) => res.json())
-      .then((arr) => {
-        setItems(arr);
+
+    const category = filterIndex > 0 ? `&category=${filterIndex}` : '';
+    const sortBy = sort.desc.replace('-', '');
+    const order = sort.desc.includes('-') ? 'asc' : 'desc';
+    const search = searchItem ? `&search=${searchItem}` : '';
+
+    axios
+      .get(
+        `https://6650e2e120f4f4c442766bbe.mockapi.io/items/pizzas?page=${currentPage}&limit=4${category}&sortBy=${sortBy}&order=${order}${search}`,
+      )
+      .then((res) => {
+        setItems(res.data);
         setShowSkeleton(false);
       });
+
     window.scrollTo(0, 0);
-  }, [activeIndex, changeSort, onPagination]);
+  }, [filterIndex, sort, currentPage, searchItem]);
 
   const skeletons = [...new Array(6)].map((_, index) => <Skeleton key={index} />);
   const pizzas = items
@@ -50,12 +55,15 @@ export default function Home() {
   return (
     <div className="container">
       <div className="content__top">
-        <Categories activeIndex={activeIndex} setCategory={(e) => setActiveIndex(e)} />
-        <Sort changeSort={changeSort} setSort={setChangeSort} />
+        <Categories filterIndex={filterIndex} setCategory={onClickCategory} />
+        <Sort sort={sort} setSort={setSort} />
       </div>
       <h2 className="content__title">Все пиццы</h2>
       <div className="content__items">{showSkeleton ? skeletons : pizzas}</div>
-      <Pagination onChangePage={(number) => setOnPagination(number)} />
+      <Pagination
+        onChangePage={(number) => dispatch(setCurrentPage(number))}
+        currentPage={currentPage}
+      />
     </div>
   );
 }

@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
 
-export default function Sort({ changeSort, setSort }) {
+export default function Sort({ sort, setSort }) {
   const [showPopUp, setShowPopUp] = useState(false);
+  const dispatch = useDispatch();
 
   const sortCategories = [
     {
@@ -31,7 +33,7 @@ export default function Sort({ changeSort, setSort }) {
   ];
 
   const handleChange = (i) => {
-    setSort(i);
+    dispatch(setSort(i));
     setShowPopUp(!showPopUp);
   };
 
@@ -50,7 +52,7 @@ export default function Sort({ changeSort, setSort }) {
           />
         </svg>
         <b>Сортировка по:</b>
-        <span onClick={() => setShowPopUp(!showPopUp)}>{changeSort.name}</span>
+        <span onClick={() => setShowPopUp(!showPopUp)}>{sort.name}</span>
       </div>
       {showPopUp && (
         <div className="sort__popup">
@@ -58,7 +60,7 @@ export default function Sort({ changeSort, setSort }) {
             {sortCategories.map((obj, i) => (
               <li
                 key={i}
-                className={obj === changeSort ? 'active' : ''}
+                className={obj === sort ? 'active' : ''}
                 onClick={() => handleChange(obj)}>
                 {obj.name}
               </li>
